@@ -1,5 +1,7 @@
 # First Frame - Sports Photography Platform
 
+<!-- Auto-deploy test comment - testing GitHub to Netlify workflow -->
+
 First Frame is a platform that connects student photographers with event organizers for sports photography opportunities.
 
 ## Features
