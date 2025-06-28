@@ -42,7 +42,7 @@ export const MainContentSection = (): JSX.Element => {
 
               {/* Slogan */}
               <p className="font-['Figtree',Helvetica] font-medium text-white text-base tracking-[-0.32px] leading-[22.4px]">
-                Frist Frame - Capture the Game. Frame the Moment.
+                First Frame - Capture the Game. Frame the Moment.
               </p>
             </div>
 
