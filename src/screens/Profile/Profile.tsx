@@ -194,11 +194,11 @@ export const Profile = (): JSX.Element => {
       />
       
       {/* Hero Section */}
-      <section className="relative w-full py-20 px-10 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900">
+      <section className="relative w-full py-10 px-4 sm:py-20 sm:px-10 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-6">
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-orange-500 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="relative group mb-4 sm:mb-0">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-orange-500 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                 {user.profile_picture_url ? (
                   <img 
                     src={user.profile_picture_url} 
@@ -206,7 +206,7 @@ export const Profile = (): JSX.Element => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-white text-2xl font-bold">
+                  <span className="text-white text-2xl sm:text-3xl font-bold">
                     {getInitials(user.full_name)}
                   </span>
                 )}
@@ -226,8 +226,8 @@ export const Profile = (): JSX.Element => {
                 </Button>
               </div>
             </div>
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white mb-2 font-['Merriweather',serif] flex items-center gap-2">
+            <div className="flex-1 w-full min-w-0">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 font-['Merriweather',serif] flex flex-wrap items-center gap-2 break-words">
                 {user.full_name}
                 {user.badges?.includes('verified') && (
                   <Badge className="bg-blue-500/20 text-blue-500 border-blue-500 flex items-center gap-1">
@@ -242,24 +242,24 @@ export const Profile = (): JSX.Element => {
                   </Badge>
                 )}
               </h1>
-              <p className="text-xl text-gray-300 font-['Figtree',sans-serif]">
+              <p className="text-base sm:text-xl text-gray-300 font-['Figtree',sans-serif] break-words">
                 {user.user_type === 'student' ? 'Student Photographer' : 'Event Organizer'}
               </p>
               {user.location && (
                 <div className="flex items-center gap-2 text-gray-400 mt-2">
                   <MapPin className="w-4 h-4" />
-                  {user.location}
+                  <span className="truncate max-w-[150px] sm:max-w-xs">{user.location}</span>
                 </div>
               )}
             </div>
-            <div className="text-right">
-              <Badge className={`mb-2 ${getExperienceColor(user.experience_level)}`}>
+            <div className="text-right flex flex-col items-end gap-2 min-w-[100px]">
+              <Badge className={`${getExperienceColor(user.experience_level)} w-full text-center`}>
                 {user.experience_level ? 
                   user.experience_level.charAt(0).toUpperCase() + user.experience_level.slice(1) 
                   : 'Not Specified'
                 }
               </Badge>
-              <Badge className="bg-blue-500/20 text-blue-400">
+              <Badge className="bg-blue-500/20 text-blue-400 w-full text-center">
                 {user.user_type === 'student' ? 'Student' : 'Organizer'}
               </Badge>
             </div>
