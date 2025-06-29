@@ -300,7 +300,6 @@ export const ForStudents = (): JSX.Element => {
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Map Section */}
                 <div className="lg:col-span-1 flex flex-col gap-6">
-                  console.log('[ForStudents] Map opportunities:', displayOpportunities);
                   <OpportunityMap 
                     opportunities={displayOpportunities}
                     loading={loading}
