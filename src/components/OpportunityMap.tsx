@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { MapPin, Calendar, Clock, Users } from 'lucide-react';
+import { MapPin, Calendar, Clock, Users, CheckCircle } from 'lucide-react';
 import type { Database } from '../lib/database.types';
+import { geocodeLocation } from '../lib/utils';
 
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -24,6 +26,17 @@ interface OpportunityMapProps {
   onOpportunityClick?: (opportunity: OpportunityWithOrganizer) => void;
   loading?: boolean;
 }
+
+// Helper: get sport emoji/icon (expand as needed)
+const sportIcons: Record<string, string> = {
+  basketball: '🏀',
+  soccer: '⚽',
+  football: '🏈',
+  baseball: '⚾',
+  track: '🏃',
+  swimming: '🏊',
+  tennis: '🎾',
+};
 
 // Sample coordinates for common locations (you can expand this)
 const locationCoordinates: { [key: string]: [number, number] } = {
@@ -51,24 +64,8 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
 }) => {
   const [mapCenter, setMapCenter] = useState<[number, number]>([39.8283, -98.5795]); // Center of USA
   const [mapZoom, setMapZoom] = useState(4);
-
-  // Get coordinates for a location
-  const getCoordinates = (location: string): [number, number] | null => {
-    // Try exact match first
-    if (locationCoordinates[location]) {
-      return locationCoordinates[location];
-    }
-    
-    // Try partial matches
-    for (const [key, coords] of Object.entries(locationCoordinates)) {
-      if (location.toLowerCase().includes(key.toLowerCase()) || 
-          key.toLowerCase().includes(location.toLowerCase())) {
-        return coords;
-      }
-    }
-    
-    return null;
-  };
+  const [geoMarkers, setGeoMarkers] = useState<(OpportunityWithOrganizer & { coordinates: [number, number] })[]>([]);
+  const [geoLoading, setGeoLoading] = useState(true);
 
   // Get marker color based on difficulty
   const getMarkerColor = (difficulty: string) => {
@@ -80,58 +77,68 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
     }
   };
 
-  // Create custom marker icon
-  const createCustomIcon = (color: string) => {
+  // Create custom marker icon (by sport, verified, etc.)
+  const createCustomIcon = (opportunity: OpportunityWithOrganizer) => {
+    const color = getMarkerColor(opportunity.difficulty);
+    const emoji = opportunity.sport && sportIcons[opportunity.sport.toLowerCase()] ? sportIcons[opportunity.sport.toLowerCase()] : '📸';
+    const isVerified = opportunity.organizer?.badges?.includes('verified');
     return L.divIcon({
       className: 'custom-marker',
       html: `
         <div style="
-          background-color: ${color};
-          width: 20px;
-          height: 20px;
+          background: linear-gradient(135deg, ${color} 80%, #fff 100%);
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           border: 3px solid white;
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
           display: flex;
           align-items: center;
           justify-content: center;
+          font-size: 18px;
+          position: relative;
         ">
-          <div style="
-            background-color: white;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-          "></div>
+          <span>${emoji}</span>
+          ${isVerified ? `<span style='position:absolute;bottom:-6px;right:-6px;background:#3b82f6;border-radius:50%;padding:2px;'><svg width='12' height='12' fill='none' viewBox='0 0 24 24' stroke='white'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M5 13l4 4L19 7'/></svg></span>` : ''}
         </div>
       `,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
     });
   };
 
-  // Filter opportunities that have valid coordinates
-  const mappedOpportunities = opportunities
-    .map(opp => {
-      const coords = getCoordinates(opp.location);
-      return coords ? { ...opp, coordinates: coords } : null;
-    })
-    .filter(Boolean) as (OpportunityWithOrganizer & { coordinates: [number, number] })[];
-
-  // Update map center when opportunities change
+  // Geocode all opportunity locations
   useEffect(() => {
-    if (mappedOpportunities.length > 0) {
-      // Calculate center of all markers
-      const lats = mappedOpportunities.map(opp => opp.coordinates[0]);
-      const lngs = mappedOpportunities.map(opp => opp.coordinates[1]);
-      const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-      const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-      
-      setMapCenter([centerLat, centerLng]);
-      setMapZoom(mappedOpportunities.length === 1 ? 10 : 6);
-    }
-  }, [mappedOpportunities]);
+    console.log('[OpportunityMap] opportunities:', opportunities);
+    let isMounted = true;
+    setGeoLoading(true);
+    Promise.all(
+      opportunities.map(async (opp) => {
+        const loc = opp.address || opp.location;
+        if (!loc) return null;
+        const coords = await geocodeLocation(loc);
+        return coords ? { ...opp, coordinates: coords } : null;
+      })
+    ).then((results) => {
+      if (isMounted) {
+        const filtered = results.filter(Boolean) as (OpportunityWithOrganizer & { coordinates: [number, number] })[];
+        setGeoMarkers(filtered);
+        if (filtered.length > 0) {
+          // Center map on markers
+          const lats = filtered.map(opp => opp.coordinates[0]);
+          const lngs = filtered.map(opp => opp.coordinates[1]);
+          const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+          const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+          setMapCenter([centerLat, centerLng]);
+          setMapZoom(filtered.length === 1 ? 10 : 6);
+        }
+        setGeoLoading(false);
+      }
+    });
+    return () => { isMounted = false; };
+  }, [opportunities]);
 
-  if (loading) {
+  if (loading || geoLoading) {
     return (
       <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24">
         <CardHeader>
@@ -158,9 +165,9 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
         <CardTitle className="text-white flex items-center gap-2">
           <MapPin className="w-5 h-5 text-orange-500" />
           Shoot Locations
-          {mappedOpportunities.length > 0 && (
+          {geoMarkers.length > 0 && (
             <Badge className="ml-2 bg-orange-500/20 text-orange-400">
-              {mappedOpportunities.length}
+              {geoMarkers.length}
             </Badge>
           )}
         </CardTitle>
@@ -177,49 +184,66 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            
-            {mappedOpportunities.map((opportunity) => {
-              const markerColor = getMarkerColor(opportunity.difficulty);
-              const customIcon = createCustomIcon(markerColor);
-              
-              return (
-                <Marker
-                  key={opportunity.id}
-                  position={opportunity.coordinates}
-                  icon={customIcon}
-                  eventHandlers={{
-                    click: () => onOpportunityClick?.(opportunity),
-                  }}
-                >
-                  <Popup>
-                    <div className="p-2 min-w-[200px]">
-                      <h3 className="font-bold text-gray-900 mb-2">{opportunity.title}</h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {opportunity.location}
+            <MarkerClusterGroup>
+              {geoMarkers.map((opportunity) => {
+                const customIcon = createCustomIcon(opportunity);
+                return (
+                  <Marker
+                    key={opportunity.id}
+                    position={opportunity.coordinates}
+                    icon={customIcon}
+                    eventHandlers={{
+                      click: () => onOpportunityClick?.(opportunity),
+                    }}
+                  >
+                    <Popup>
+                      <div className="p-2 min-w-[220px]">
+                        <h3 className="font-bold text-gray-900 mb-1 text-lg">{opportunity.title}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          {opportunity.organizer?.full_name && (
+                            <span className="text-xs text-gray-600 flex items-center gap-1">
+                              Posted by: <span className="font-semibold text-gray-900">{opportunity.organizer.full_name}</span>
+                              {opportunity.organizer.badges?.includes('verified') && (
+                                <CheckCircle className="w-3 h-3 text-blue-500 ml-1" />
+                              )}
+                            </span>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {opportunity.date}
+                        <div className="space-y-1 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {opportunity.location}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {opportunity.date}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {opportunity.time}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {opportunity.time}
+                        <Badge className={`mt-2 ${
+                          opportunity.difficulty === 'beginner' ? 'bg-green-500/20 text-green-600' :
+                          opportunity.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-600' :
+                          'bg-red-500/20 text-red-600'
+                        }`}>
+                          {opportunity.difficulty?.charAt(0).toUpperCase() + opportunity.difficulty?.slice(1)}
+                        </Badge>
+                        <div className="mt-2">
+                          <a
+                            href={`#opportunity-${opportunity.id}`}
+                            className="text-orange-500 hover:underline text-xs font-semibold"
+                          >
+                            View Details
+                          </a>
                         </div>
                       </div>
-                      <Badge className={`mt-2 ${
-                        opportunity.difficulty === 'beginner' ? 'bg-green-500/20 text-green-600' :
-                        opportunity.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-600' :
-                        'bg-red-500/20 text-red-600'
-                      }`}>
-                        {opportunity.difficulty?.charAt(0).toUpperCase() + opportunity.difficulty?.slice(1)}
-                      </Badge>
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </MarkerClusterGroup>
           </MapContainer>
         </div>
         <div className="mt-4 space-y-2">

@@ -274,11 +274,12 @@ export const PhotographerCard: React.FC<PhotographerCardProps> = ({ photographer
             )}
             {photographer.instagram_handle && (
               <Button
-                variant="outline"
                 size="sm"
-                className="border-neutral-600 text-neutral-300 hover:text-white"
+                className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-semibold rounded-full px-4 py-2 flex items-center gap-2 border-none shadow hover:brightness-110 transition"
                 onClick={() => window.open(`https://instagram.com/${photographer.instagram_handle}`, '_blank')}
+                style={{ boxShadow: '0 2px 8px 0 rgba(255, 0, 100, 0.15)' }}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 mr-1"><path fill="currentColor" d="M7.75 2A5.75 5.75 0 0 0 2 7.75v8.5A5.75 5.75 0 0 0 7.75 22h8.5A5.75 5.75 0 0 0 22 16.25v-8.5A5.75 5.75 0 0 0 16.25 2h-8.5Zm0 1.5h8.5A4.25 4.25 0 0 1 20.5 7.75v8.5a4.25 4.25 0 0 1-4.25 4.25h-8.5A4.25 4.25 0 0 1 3.5 16.25v-8.5A4.25 4.25 0 0 1 7.75 3.5Zm8.25 2.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM12 7.25A4.75 4.75 0 1 0 12 16.75a4.75 4.75 0 0 0 0-9.5Zm0 1.5a3.25 3.25 0 1 1 0 6.5a3.25 3.25 0 0 1 0-6.5Z"/></svg>
                 Instagram
               </Button>
             )}

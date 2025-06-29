@@ -95,3 +95,42 @@ export const getInitials = (name: string): string => {
     .toUpperCase()
     .slice(0, 2);
 };
+
+// Geocode a location string to [lat, lng] using Nominatim (OpenStreetMap)
+export async function geocodeLocation(location: string): Promise<[number, number] | null> {
+  if (!location) return null;
+  console.log('[Geocode] Looking up:', location);
+  // Check cache first
+  const cacheKey = `geocode_${location}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed) && parsed.length === 2) {
+        console.log(`[Geocode] Cache hit for ${location}:`, parsed);
+        return parsed as [number, number];
+      }
+    } catch {}
+  } else {
+    console.log(`[Geocode] Cache miss for ${location}`);
+  }
+  // Fetch from Nominatim
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+  try {
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lon = parseFloat(data[0].lon);
+      if (!isNaN(lat) && !isNaN(lon)) {
+        localStorage.setItem(cacheKey, JSON.stringify([lat, lon]));
+        console.log(`[Geocode] API result for ${location}:`, [lat, lon]);
+        return [lat, lon];
+      }
+    }
+    console.warn(`[Geocode] No results for ${location}`, data);
+  } catch (e) {
+    console.error(`[Geocode] Error for ${location}:`, e);
+  }
+  return null;
+}

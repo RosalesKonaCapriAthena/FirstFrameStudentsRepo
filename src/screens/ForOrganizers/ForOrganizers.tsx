@@ -533,8 +533,8 @@ export const ForOrganizers = (): JSX.Element => {
                                 {opportunity.description}
                               </p>
                             </div>
-                            <div className="text-right ml-4">
-                              <Badge className={`mb-2 ${
+                            <div className="text-right ml-4 flex gap-2">
+                              <Badge className={`${
                                 opportunity.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
                                 opportunity.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
                                 'bg-red-500/20 text-red-400'

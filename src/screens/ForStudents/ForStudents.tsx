@@ -55,6 +55,7 @@ export const ForStudents = (): JSX.Element => {
   const [applyLoading, setApplyLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   // Check if already applied
   const hasApplied = (opportunityId: string) => {
@@ -299,13 +300,16 @@ export const ForStudents = (): JSX.Element => {
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Map Section */}
                 <div className="lg:col-span-1 flex flex-col gap-6">
+                  console.log('[ForStudents] Map opportunities:', displayOpportunities);
                   <OpportunityMap 
                     opportunities={displayOpportunities}
                     loading={loading}
                     onOpportunityClick={(opportunity) => {
                       const element = document.getElementById(`opportunity-${opportunity.id}`);
                       if (element) {
-                        element.scrollIntoView({ behavior: 'smooth' });
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setHighlightedId(opportunity.id);
+                        setTimeout(() => setHighlightedId(null), 2000);
                       }
                     }}
                   />
@@ -349,7 +353,11 @@ export const ForStudents = (): JSX.Element => {
                       (displayOpportunities as OpportunityWithOrganizer[]).map((shoot) => {
                         console.log('Opportunity card data:', shoot);
                         return (
-                          <Card key={shoot.id} id={`opportunity-${shoot.id}`} className="bg-neutral-800 border-neutral-700 hover:border-orange-500/30 transition-all duration-300">
+                          <Card 
+                            key={shoot.id} 
+                            id={`opportunity-${shoot.id}`} 
+                            className={`bg-neutral-800 border-neutral-700 hover:border-orange-500/30 transition-all duration-300 ${highlightedId === shoot.id ? 'ring-4 ring-orange-400 ring-opacity-80 animate-pulse' : ''}`}
+                          >
                             <CardContent className="p-6">
                               <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
@@ -386,8 +394,8 @@ export const ForStudents = (): JSX.Element => {
                                     {shoot.description}
                                   </p>
                                 </div>
-                                <div className="text-right ml-4">
-                                  <Badge className={`mb-2 ${
+                                <div className="text-right ml-4 flex gap-2">
+                                  <Badge className={`${
                                     shoot.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
                                     shoot.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
                                     'bg-red-500/20 text-red-400'
