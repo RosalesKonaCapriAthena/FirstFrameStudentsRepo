@@ -30,7 +30,7 @@ export function useOpportunities() {
         .from('opportunities')
         .select(`
           *,
-          organizer:users!opportunities_organizer_id_fkey(full_name, location, email)
+          organizer:users!opportunities_organizer_id_fkey(full_name, location, email, badges)
         `);
 
       // Apply filters
@@ -187,7 +187,7 @@ export function useOpportunities() {
         .from('opportunities')
         .select(`
           *,
-          organizer:users!opportunities_organizer_id_fkey(full_name, location, email)
+          organizer:users!opportunities_organizer_id_fkey(full_name, location, email, badges)
         `)
         .eq('organizer_id', organizerId)
         .order('created_at', { ascending: false });

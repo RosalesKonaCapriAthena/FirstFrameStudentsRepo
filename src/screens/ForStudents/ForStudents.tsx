@@ -9,6 +9,7 @@ import { useOpportunities } from "../../lib/hooks/useOpportunities";
 import { useApplications } from "../../lib/hooks/useApplications";
 import { useUser } from "../../lib/hooks/useUser";
 import { SearchFiltersComponent } from "../../components/SearchFilters";
+import { OpportunityMap } from "../../components/OpportunityMap";
 import { 
   MapPin, 
   Calendar, 
@@ -29,6 +30,10 @@ import {
   ArrowRight
 } from "lucide-react";
 import emailjs from 'emailjs-com';
+
+// Add type for opportunity with optional organizer
+import type { Database } from '../../lib/database.types';
+type OpportunityWithOrganizer = Database['public']['Tables']['opportunities']['Row'] & { organizer?: { full_name?: string, badges?: string[] } };
 
 export const ForStudents = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState("shoots");
@@ -293,39 +298,17 @@ export const ForStudents = (): JSX.Element => {
             <TabsContent value="shoots" className="mt-8">
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Map Section */}
-                <div className="lg:col-span-1">
-                  <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24">
-                    <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-orange-500" />
-                        Shoot Locations
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-neutral-700 rounded-lg h-96 flex items-center justify-center">
-                        <div className="text-center text-gray-400">
-                          <MapPin className="w-12 h-12 mx-auto mb-4 text-orange-500" />
-                          <p className="font-medium">Interactive Map</p>
-                          <p className="text-sm">Shows all available shoots</p>
-                          <p className="text-xs mt-2">Map integration coming soon</p>
-                        </div>
-                      </div>
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <span>Available Now</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                          <span>Coming Soon</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                          <span>High Priority</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="lg:col-span-1 flex flex-col gap-6">
+                  <OpportunityMap 
+                    opportunities={displayOpportunities}
+                    loading={loading}
+                    onOpportunityClick={(opportunity) => {
+                      const element = document.getElementById(`opportunity-${opportunity.id}`);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  />
                 </div>
 
                 {/* Shoots List */}
@@ -363,68 +346,83 @@ export const ForStudents = (): JSX.Element => {
                         }
                       </div>
                     ) : (
-                      displayOpportunities.map((shoot) => (
-                        <Card key={shoot.id} className="bg-neutral-800 border-neutral-700 hover:border-orange-500/30 transition-all duration-300">
-                          <CardContent className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <h3 className="text-xl font-bold text-white mb-2 font-['Merriweather',serif]">
-                                  {shoot.title}
-                                </h3>
-                                <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="w-4 h-4" />
-                                    {shoot.location}
+                      (displayOpportunities as OpportunityWithOrganizer[]).map((shoot) => {
+                        console.log('Opportunity card data:', shoot);
+                        return (
+                          <Card key={shoot.id} id={`opportunity-${shoot.id}`} className="bg-neutral-800 border-neutral-700 hover:border-orange-500/30 transition-all duration-300">
+                            <CardContent className="p-6">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <h3 className="text-xl font-bold text-white mb-2 font-['Merriweather',serif]">
+                                    {shoot.title}
+                                  </h3>
+                                  {(shoot.organizer?.full_name) ? (
+                                    <div className="text-xs text-gray-400 mb-2 flex items-center gap-1">Posted by: <span className="font-semibold text-white flex items-center gap-1">{shoot.organizer.full_name}
+                                      {shoot.organizer.badges?.includes('verified') && (
+                                        <Badge className="bg-blue-500/20 text-blue-500 border-blue-500 flex items-center gap-1 ml-1">
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                          Verified
+                                        </Badge>
+                                      )}
+                                    </span></div>
+                                  ) : (
+                                    <div className="text-xs text-gray-400 mb-2">Posted by: <span className="font-semibold text-white">Unknown Organizer</span></div>
+                                  )}
+                                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
+                                    <div className="flex items-center gap-1">
+                                      <MapPin className="w-4 h-4" />
+                                      {shoot.location}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="w-4 h-4" />
+                                      {shoot.date}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Clock className="w-4 h-4" />
+                                      {shoot.time}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
-                                    {shoot.date}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
-                                    {shoot.time}
-                                  </div>
+                                  <p className="text-gray-300 mb-4 font-['Figtree',sans-serif]">
+                                    {shoot.description}
+                                  </p>
                                 </div>
-                                <p className="text-gray-300 mb-4 font-['Figtree',sans-serif]">
-                                  {shoot.description}
-                                </p>
-                              </div>
-                              <div className="text-right ml-4">
-                                <Badge className={`mb-2 ${
-                                  shoot.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
-                                  shoot.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
-                                  'bg-red-500/20 text-red-400'
-                                }`}>
-                                  {shoot.difficulty?.charAt(0).toUpperCase() + shoot.difficulty?.slice(1)}
-                                </Badge>
-                                <Badge className="bg-blue-500/20 text-blue-400">
-                                  {shoot.sport}
-                                </Badge>
-                              </div>
-                            </div>
-                            
-                            <div className="mb-4">
-                              <h4 className="text-sm font-semibold text-white mb-2">Requirements:</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {(Array.isArray(shoot.requirements) ? shoot.requirements : (shoot.requirements ? [shoot.requirements] : [])).map((req, index) => (
-                                  <Badge key={index} className="border border-neutral-600 bg-neutral-800 text-gray-300">
-                                    {req}
+                                <div className="text-right ml-4">
+                                  <Badge className={`mb-2 ${
+                                    shoot.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                                    shoot.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {shoot.difficulty?.charAt(0).toUpperCase() + shoot.difficulty?.slice(1)}
                                   </Badge>
-                                ))}
+                                  <Badge className="bg-blue-500/20 text-blue-400">
+                                    {shoot.sport}
+                                  </Badge>
+                                </div>
                               </div>
-                            </div>
+                              
+                              <div className="mb-4">
+                                <h4 className="text-sm font-semibold text-white mb-2">Requirements:</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {(Array.isArray(shoot.requirements) ? shoot.requirements : (shoot.requirements ? [shoot.requirements] : [])).map((req, index) => (
+                                    <Badge key={index} className="border border-neutral-600 bg-neutral-800 text-gray-300">
+                                      {req}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
 
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm text-gray-400">
-                                <span className="font-medium text-white">{shoot.address}</span>
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm text-gray-400">
+                                  <span className="font-medium text-white">{shoot.address}</span>
+                                </div>
+                                <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleApplyClick(shoot)} disabled={hasApplied(shoot.id)}>
+                                  {hasApplied(shoot.id) ? "Applied" : "Capture Event"}
+                                </Button>
                               </div>
-                              <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleApplyClick(shoot)} disabled={hasApplied(shoot.id)}>
-                                {hasApplied(shoot.id) ? "Applied" : "Capture Event"}
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
+                            </CardContent>
+                          </Card>
+                        );
+                      })
                     )}
                   </div>
                 </div>

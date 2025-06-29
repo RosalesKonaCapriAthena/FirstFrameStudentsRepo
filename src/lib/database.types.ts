@@ -16,6 +16,7 @@ export interface Database {
           profile_picture_url: string | null
           created_at: string
           updated_at: string
+          badges?: string[]
         }
         Insert: {
           id?: string
@@ -31,6 +32,7 @@ export interface Database {
           profile_picture_url?: string | null
           created_at?: string
           updated_at?: string
+          badges?: string[]
         }
         Update: {
           id?: string
@@ -46,6 +48,7 @@ export interface Database {
           profile_picture_url?: string | null
           created_at?: string
           updated_at?: string
+          badges?: string[]
         }
       }
       opportunities: {

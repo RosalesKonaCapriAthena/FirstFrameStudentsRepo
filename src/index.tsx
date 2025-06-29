@@ -11,6 +11,7 @@ import { Auth } from "./screens/Auth";
 import { Profile } from "./screens/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Contact } from "./screens/Contact";
+import 'leaflet/dist/leaflet.css'
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>

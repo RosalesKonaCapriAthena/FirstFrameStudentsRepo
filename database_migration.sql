@@ -4,6 +4,9 @@
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS profile_picture_url TEXT;
 
+-- Add badges column to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS badges text[] DEFAULT ARRAY[]::text[];
+
 -- Create storage bucket for profile pictures (if it doesn't exist)
 -- Note: You may need to create this bucket manually in the Supabase dashboard
 -- under Storage > Create a new bucket named 'avatars'

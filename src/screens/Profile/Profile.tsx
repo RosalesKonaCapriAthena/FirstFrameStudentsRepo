@@ -227,8 +227,20 @@ export const Profile = (): JSX.Element => {
               </div>
             </div>
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white mb-2 font-['Merriweather',serif]">
+              <h1 className="text-4xl font-bold text-white mb-2 font-['Merriweather',serif] flex items-center gap-2">
                 {user.full_name}
+                {user.badges?.includes('verified') && (
+                  <Badge className="bg-blue-500/20 text-blue-500 border-blue-500 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    Verified
+                  </Badge>
+                )}
+                {user.badges?.includes('founder') && (
+                  <Badge className="bg-yellow-400/20 text-yellow-500 border-yellow-400 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" /></svg>
+                    Founder
+                  </Badge>
+                )}
               </h1>
               <p className="text-xl text-gray-300 font-['Figtree',sans-serif]">
                 {user.user_type === 'student' ? 'Student Photographer' : 'Event Organizer'}

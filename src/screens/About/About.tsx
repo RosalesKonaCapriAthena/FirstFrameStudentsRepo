@@ -52,19 +52,19 @@ export const About = (): JSX.Element => {
     {
       name: "Taylor Schedmana",
       role: "Founder",
-      image: "https://ih1.redbubble.net/image.4191571164.6901/flat,750x,075,f-pad,750x1000,f8f8f8.jpg",
-      bio: "High school student passionate about building tools that help other students learn, grow, and get real-world experience",
+      image: "https://res.cloudinary.com/djwnjp7er/image/upload/v1751189025/IMG_0107_rp78av.jpg",
+      bio: "Senior at Hamilton High School passionate about photography and dedicated to making creative opportunities more accessible for student photographers.",
       social: {
         linkedin: "#",
         instagram: "https://www.instagram.com/talobeey/",
-        email: "sarah@firstframe.com"
+        email: "tschmede83@gmail.com"
       }
     },
     {
       name: "Gavin Rosales",
       role: "Founder",
-      image: "https://pbs.twimg.com/media/GWr6cySa8AIF_FX.jpg",
-      bio: "High school student passionate about building tools that help other students learn, grow, and get real-world experience",
+      image: "https://res.cloudinary.com/djwnjp7er/image/upload/v1751188855/blank-profile-picture-973460_1280_mapt7e.webp",
+      bio: "Senior at LACES High School with a passion for photography and a mission to help other students gain access to real-world creative opportunities through visual storytelling.",
       social: {
         linkedin: "https://www.linkedin.com/in/gavin-rosales-7012a4369/",
         instagram: "https://www.instagram.com/gavin.rosales/",
