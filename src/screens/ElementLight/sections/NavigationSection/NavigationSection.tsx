@@ -199,7 +199,7 @@ export const NavigationSection = (): JSX.Element => {
 
         {/* Mobile Navigation Menu */}
         {showMobileMenu && (
-          <div className="absolute top-full left-0 right-0 bg-neutral-900 border-b border-neutral-700 md:hidden">
+          <div className="absolute top-full left-0 right-0 bg-neutral-900 border-b border-neutral-700 md:hidden z-50">
             <div className="px-4 py-4 space-y-2">
               {menuItems.map((item, index) => (
                 <Link
@@ -247,7 +247,7 @@ export const NavigationSection = (): JSX.Element => {
       {/* Click outside to close dropdowns */}
       {(showProfileMenu || showMobileMenu) && (
         <div 
-          className="fixed inset-0 z-40" 
+          className="fixed inset-0 z-30" 
           onClick={() => {
             setShowProfileMenu(false);
             setShowMobileMenu(false);
