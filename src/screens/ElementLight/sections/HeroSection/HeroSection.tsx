@@ -43,12 +43,12 @@ export const HeroSection = (): JSX.Element => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-8 px-10 py-20 w-full max-w-6xl mx-auto text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-6 sm:gap-8 px-4 sm:px-10 py-16 sm:py-20 w-full max-w-6xl mx-auto text-center">
         {/* Main Title */}
-        <div className={`flex flex-col items-center gap-4 transition-all duration-1500 ease-out ${
+        <div className={`flex flex-col items-center gap-3 sm:gap-4 transition-all duration-1500 ease-out ${
           isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
         }`}>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-normal leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-normal leading-tight">
             <span className={`block text-white font-['Merriweather',serif] tracking-tight transition-all duration-1500 delay-500 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             }`}>
@@ -63,27 +63,27 @@ export const HeroSection = (): JSX.Element => {
         </div>
 
         {/* Subtitle */}
-        <div className={`max-w-4xl mx-auto transition-all duration-1500 delay-1100 ease-out ${
+        <div className={`max-w-4xl mx-auto px-4 transition-all duration-1500 delay-1100 ease-out ${
           isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
         }`}>
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed font-['Figtree',sans-serif] font-medium">
+          <p className="text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed font-['Figtree',sans-serif] font-medium">
             First Frame empowers high school photographers to connect with local pickup sports events,
             build their creative skills, and share their work with the community.
           </p>
         </div>
 
         {/* CTA Button */}
-        <div className={`mt-4 transition-all duration-1500 delay-1400 ease-out ${
+        <div className={`mt-2 sm:mt-4 transition-all duration-1500 delay-1400 ease-out ${
           isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
         }`}>
           <Button 
             onClick={handleGetStarted}
-            className="relative px-6 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-lg font-medium transition-all duration-300 shadow-2xl hover:shadow-orange-500/25 border border-orange-400/20 transform hover:scale-105 active:scale-95 group"
+            className="relative px-4 sm:px-6 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-base sm:text-lg font-medium transition-all duration-300 shadow-2xl hover:shadow-orange-500/25 border border-orange-400/20 transform hover:scale-105 active:scale-95 group w-full sm:w-auto"
           >
             <span className="font-['Figtree',sans-serif] font-medium tracking-tight">
               Get Started
             </span>
-            <ArrowRightIcon className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
         </div>
       </div>

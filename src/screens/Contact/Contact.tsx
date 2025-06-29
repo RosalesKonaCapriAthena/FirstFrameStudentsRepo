@@ -60,33 +60,33 @@ This message was sent from the First Frame contact form.`;
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 px-4 py-16 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 px-4 sm:px-4 py-8 sm:py-16 relative">
       {/* Back Arrow */}
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 flex items-center gap-2 bg-neutral-800 hover:bg-orange-500 text-white hover:text-white rounded-full p-2 shadow transition-colors duration-200 z-10"
+        className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 bg-neutral-800 hover:bg-orange-500 text-white hover:text-white rounded-full p-2 shadow transition-colors duration-200 z-10"
         aria-label="Go back"
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         <span className="hidden sm:inline font-medium">Back</span>
       </button>
       <Card className="w-full max-w-lg bg-neutral-800 border-neutral-700 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-white text-3xl text-center mb-2 font-['Merriweather',serif]">
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-white text-2xl sm:text-3xl text-center mb-2 font-['Merriweather',serif]">
             Contact Us
           </CardTitle>
-          <p className="text-gray-300 text-center font-['Figtree',sans-serif]">
+          <p className="text-gray-300 text-center font-['Figtree',sans-serif] text-sm sm:text-base">
             Have a question, suggestion, or want to get involved? Fill out the form below and we'll get back to you soon!
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {success ? (
-            <div className="text-center py-8">
-              <div className="text-2xl text-orange-500 font-bold mb-2">Thank you!</div>
-              <div className="text-gray-300">Your message has been sent. We'll be in touch soon.</div>
+            <div className="text-center py-6 sm:py-8">
+              <div className="text-xl sm:text-2xl text-orange-500 font-bold mb-2">Thank you!</div>
+              <div className="text-gray-300 text-sm sm:text-base">Your message has been sent. We'll be in touch soon.</div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               <div>
                 <label className="text-gray-300 text-sm mb-1 block">Name</label>
                 <Input
@@ -94,7 +94,7 @@ This message was sent from the First Frame contact form.`;
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Your name"
-                  className="bg-neutral-700 border-neutral-600 text-white"
+                  className="bg-neutral-700 border-neutral-600 text-white h-10 sm:h-11"
                   required
                 />
               </div>
@@ -106,7 +106,7 @@ This message was sent from the First Frame contact form.`;
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@email.com"
-                  className="bg-neutral-700 border-neutral-600 text-white"
+                  className="bg-neutral-700 border-neutral-600 text-white h-10 sm:h-11"
                   required
                 />
               </div>
@@ -117,7 +117,7 @@ This message was sent from the First Frame contact form.`;
                   value={form.message}
                   onChange={handleChange}
                   placeholder="How can we help you?"
-                  className="w-full bg-neutral-700 border border-neutral-600 text-white rounded-md p-3 resize-none h-28"
+                  className="w-full bg-neutral-700 border border-neutral-600 text-white rounded-md p-3 resize-none h-24 sm:h-28 text-sm sm:text-base"
                   required
                 />
               </div>
@@ -126,12 +126,12 @@ This message was sent from the First Frame contact form.`;
               )}
               <Button
                 type="submit"
-                className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+                className="bg-orange-500 hover:bg-orange-600 text-white w-full h-10 sm:h-11 text-sm sm:text-base"
                 disabled={loading}
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
                     </svg>
@@ -143,7 +143,7 @@ This message was sent from the First Frame contact form.`;
               </Button>
             </form>
           )}
-          <div className="mt-8 text-center text-gray-400 text-sm">
+          <div className="mt-6 sm:mt-8 text-center text-gray-400 text-xs sm:text-sm">
             Or email us directly at <a href="mailto:firstframestudents@gmail.com" className="text-orange-400 underline">firstframestudents@gmail.com</a>
           </div>
         </CardContent>
