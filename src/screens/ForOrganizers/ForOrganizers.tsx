@@ -268,37 +268,41 @@ export const ForOrganizers = (): JSX.Element => {
       </section>
 
       {/* Main Content Tabs */}
-      <section className="w-full py-16 px-10 bg-neutral-900">
+      <section className="w-full py-16 px-4 sm:px-10 bg-neutral-900">
         <div className="max-w-6xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 bg-neutral-800 border border-neutral-700">
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 sm:grid-cols-4 bg-neutral-800 border border-neutral-700 gap-1 p-1">
               <TabsTrigger 
                 value="post-opportunity" 
-                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Post Opportunity
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Post Opportunity</span>
+                <span className="sm:hidden">Post</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="manage-listings" 
-                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
               >
-                <Settings className="w-4 h-4 mr-2" />
-                Manage Listings
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Manage Listings</span>
+                <span className="sm:hidden">Manage</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="applications" 
-                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
               >
-                <Users className="w-4 h-4 mr-2" />
-                Applications
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Applications</span>
+                <span className="sm:hidden">Apps</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="find-photographers" 
-                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
               >
-                <Camera className="w-4 h-4 mr-2" />
-                Find Photographers
+                <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Find Photographers</span>
+                <span className="sm:hidden">Find</span>
               </TabsTrigger>
             </TabsList>
 
@@ -314,63 +318,63 @@ export const ForOrganizers = (): JSX.Element => {
                       Fill out the form below to create a new opportunity for student photographers.
                     </p>
                   </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
+                  <CardContent className="p-4 sm:p-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">Event Title *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Event Title *</label>
                           <Input
                             name="title"
                             value={formData.title}
                             onChange={handleInputChange}
                             placeholder="e.g., High School Basketball Championship"
-                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400"
+                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400 h-10 sm:h-11"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">Sport *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Sport *</label>
                           <Input
                             name="sport"
                             value={formData.sport}
                             onChange={handleInputChange}
                             placeholder="e.g., Basketball, Soccer, Track & Field"
-                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400"
+                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400 h-10 sm:h-11"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="grid md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">Date *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Date *</label>
                           <Input
                             name="date"
                             type="date"
                             value={formData.date}
                             onChange={handleInputChange}
-                            className="bg-neutral-700 border-neutral-600 text-white"
+                            className="bg-neutral-700 border-neutral-600 text-white h-10 sm:h-11"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">Start Time *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Start Time *</label>
                           <Input
                             name="time"
                             type="time"
                             value={formData.time}
                             onChange={handleInputChange}
-                            className="bg-neutral-700 border-neutral-600 text-white"
+                            className="bg-neutral-700 border-neutral-600 text-white h-10 sm:h-11"
                             required
                           />
                         </div>
-                        <div>
-                          <label className="block text-white font-medium mb-2">Difficulty Level</label>
+                        <div className="sm:col-span-2 lg:col-span-1">
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Difficulty Level</label>
                           <select
                             name="difficulty"
                             value={formData.difficulty}
                             onChange={handleInputChange}
-                            className="w-full h-9 px-3 py-1 bg-neutral-700 border border-neutral-600 rounded-lg text-white"
+                            className="w-full h-10 sm:h-11 px-3 py-1 bg-neutral-700 border border-neutral-600 rounded-lg text-white text-sm sm:text-base"
                           >
                             <option value="beginner">Beginner</option>
                             <option value="intermediate">Intermediate</option>
@@ -379,59 +383,59 @@ export const ForOrganizers = (): JSX.Element => {
                         </div>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">Venue Name *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Venue Name *</label>
                           <Input
                             name="location"
                             value={formData.location}
                             onChange={handleInputChange}
                             placeholder="e.g., Central High School Gymnasium"
-                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400"
+                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400 h-10 sm:h-11"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">Full Address *</label>
+                          <label className="block text-white font-medium mb-2 text-sm sm:text-base">Full Address *</label>
                           <Input
                             name="address"
                             value={formData.address}
                             onChange={handleInputChange}
                             placeholder="e.g., 123 Main St, City, State 90210"
-                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400"
+                            className="bg-neutral-700 border-neutral-600 text-white placeholder-gray-400 h-10 sm:h-11"
                             required
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-white font-medium mb-2">Event Description *</label>
+                        <label className="block text-white font-medium mb-2 text-sm sm:text-base">Event Description *</label>
                         <textarea
                           name="description"
                           value={formData.description}
                           onChange={handleInputChange}
                           placeholder="Describe the event, what type of coverage you need, and any special requirements..."
-                          className="w-full h-32 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white placeholder-gray-400 resize-none"
+                          className="w-full h-24 sm:h-32 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white placeholder-gray-400 resize-none text-sm sm:text-base"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-white font-medium mb-2">Photographer Requirements</label>
+                        <label className="block text-white font-medium mb-2 text-sm sm:text-base">Photographer Requirements</label>
                         <textarea
                           name="requirements"
                           value={formData.requirements}
                           onChange={handleInputChange}
                           placeholder="List any specific requirements (equipment, experience level, availability, etc.)"
-                          className="w-full h-24 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white placeholder-gray-400 resize-none"
+                          className="w-full h-20 sm:h-24 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white placeholder-gray-400 resize-none text-sm sm:text-base"
                         />
                       </div>
 
-                      <div className="flex items-center justify-between pt-6">
-                        <div className="text-sm text-gray-400">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 sm:pt-6 gap-4">
+                        <div className="text-xs sm:text-sm text-gray-400">
                           * Required fields
                         </div>
-                        <Button type="submit" disabled={submitting} className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
+                        <Button type="submit" disabled={submitting} className="bg-orange-500 hover:bg-orange-600 text-white px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base w-full sm:w-auto">
                           {submitting ? "Posting..." : "Post Opportunity"}
                         </Button>
                       </div>
