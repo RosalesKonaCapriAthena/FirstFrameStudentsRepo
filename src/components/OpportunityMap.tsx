@@ -62,8 +62,8 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
   onOpportunityClick,
   loading = false 
 }) => {
-  const [mapCenter, setMapCenter] = useState<[number, number]>([39.8283, -98.5795]); // Center of USA
-  const [mapZoom, setMapZoom] = useState(4);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([34.0522, -118.2437]); // Los Angeles as default
+  const [mapZoom, setMapZoom] = useState(6);
   const [geoMarkers, setGeoMarkers] = useState<(OpportunityWithOrganizer & { coordinates: [number, number] })[]>([]);
   const [geoLoading, setGeoLoading] = useState(true);
 
@@ -112,6 +112,20 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
     console.log('[OpportunityMap] opportunities:', opportunities);
     let isMounted = true;
     setGeoLoading(true);
+    
+    // Find the most common location to center the map
+    const locationCounts: { [key: string]: number } = {};
+    opportunities.forEach(opp => {
+      const loc = opp.address || opp.location;
+      if (loc) {
+        locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+      }
+    });
+    
+    // Get the most common location
+    const mostCommonLocation = Object.entries(locationCounts)
+      .sort(([,a], [,b]) => b - a)[0]?.[0];
+    
     Promise.all(
       opportunities.map(async (opp) => {
         const loc = opp.address || opp.location;
@@ -123,14 +137,35 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
       if (isMounted) {
         const filtered = results.filter(Boolean) as (OpportunityWithOrganizer & { coordinates: [number, number] })[];
         setGeoMarkers(filtered);
+        
         if (filtered.length > 0) {
-          // Center map on markers
-          const lats = filtered.map(opp => opp.coordinates[0]);
-          const lngs = filtered.map(opp => opp.coordinates[1]);
-          const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-          const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-          setMapCenter([centerLat, centerLng]);
-          setMapZoom(filtered.length === 1 ? 10 : 6);
+          // If we have a most common location, try to center on it
+          if (mostCommonLocation) {
+            const mostCommonCoords = filtered.find(opp => 
+              (opp.address || opp.location) === mostCommonLocation
+            )?.coordinates;
+            
+            if (mostCommonCoords) {
+              setMapCenter(mostCommonCoords);
+              setMapZoom(8); // Zoom in more for a specific city
+            } else {
+              // Fallback to bounding box of all markers
+              const lats = filtered.map(opp => opp.coordinates[0]);
+              const lngs = filtered.map(opp => opp.coordinates[1]);
+              const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+              const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+              setMapCenter([centerLat, centerLng]);
+              setMapZoom(filtered.length === 1 ? 10 : 6);
+            }
+          } else {
+            // Fallback to bounding box of all markers
+            const lats = filtered.map(opp => opp.coordinates[0]);
+            const lngs = filtered.map(opp => opp.coordinates[1]);
+            const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+            const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+            setMapCenter([centerLat, centerLng]);
+            setMapZoom(filtered.length === 1 ? 10 : 6);
+          }
         }
         setGeoLoading(false);
       }
@@ -160,7 +195,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
   }
 
   return (
-    <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24">
+    <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24 w-full max-w-xs sm:max-w-none mx-auto">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <MapPin className="w-5 h-5 text-orange-500" />
@@ -173,12 +208,12 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-neutral-700 rounded-lg h-96 overflow-hidden">
+        <div className="bg-neutral-700 rounded-lg h-64 sm:h-96 overflow-hidden w-full max-w-xs sm:max-w-full mx-auto">
           <MapContainer
             center={mapCenter}
             zoom={mapZoom}
             style={{ height: '100%', width: '100%' }}
-            className="rounded-lg"
+            className="rounded-lg w-full"
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -197,7 +232,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
                     }}
                   >
                     <Popup>
-                      <div className="p-2 min-w-[220px]">
+                      <div className="p-2 min-w-[180px] sm:min-w-[220px]">
                         <h3 className="font-bold text-gray-900 mb-1 text-lg">{opportunity.title}</h3>
                         <div className="flex items-center gap-2 mb-1">
                           {opportunity.organizer?.full_name && (
