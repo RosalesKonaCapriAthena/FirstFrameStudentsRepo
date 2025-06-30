@@ -297,7 +297,7 @@ export const ForStudents = (): JSX.Element => {
 
             {/* Potential Shoots Tab */}
             <TabsContent value="shoots" className="mt-8">
-              <div className="grid lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Map Section */}
                 <div className="lg:col-span-1 flex flex-col gap-6">
                   <OpportunityMap 
@@ -357,10 +357,10 @@ export const ForStudents = (): JSX.Element => {
                             id={`opportunity-${shoot.id}`} 
                             className={`bg-neutral-800 border-neutral-700 hover:border-orange-500/30 transition-all duration-300 ${highlightedId === shoot.id ? 'ring-4 ring-orange-400 ring-opacity-80 animate-pulse' : ''}`}
                           >
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between mb-4">
+                            <CardContent className="p-4 sm:p-6">
+                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-4">
                                 <div className="flex-1">
-                                  <h3 className="text-xl font-bold text-white mb-2 font-['Merriweather',serif]">
+                                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 font-['Merriweather',serif]">
                                     {shoot.title}
                                   </h3>
                                   {(shoot.organizer?.full_name) ? (
@@ -375,7 +375,7 @@ export const ForStudents = (): JSX.Element => {
                                   ) : (
                                     <div className="text-xs text-gray-400 mb-2">Posted by: <span className="font-semibold text-white">Unknown Organizer</span></div>
                                   )}
-                                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-400 mb-3">
                                     <div className="flex items-center gap-1">
                                       <MapPin className="w-4 h-4" />
                                       {shoot.location}
@@ -389,11 +389,11 @@ export const ForStudents = (): JSX.Element => {
                                       {shoot.time}
                                     </div>
                                   </div>
-                                  <p className="text-gray-300 mb-4 font-['Figtree',sans-serif]">
+                                  <p className="text-gray-300 mb-4 font-['Figtree',sans-serif] text-sm sm:text-base">
                                     {shoot.description}
                                   </p>
                                 </div>
-                                <div className="text-right ml-4 flex gap-2">
+                                <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
                                   <Badge className={`${
                                     shoot.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
                                     shoot.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
@@ -411,18 +411,18 @@ export const ForStudents = (): JSX.Element => {
                                 <h4 className="text-sm font-semibold text-white mb-2">Requirements:</h4>
                                 <div className="flex flex-wrap gap-2">
                                   {(Array.isArray(shoot.requirements) ? shoot.requirements : (shoot.requirements ? [shoot.requirements] : [])).map((req, index) => (
-                                    <Badge key={index} className="border border-neutral-600 bg-neutral-800 text-gray-300">
+                                    <Badge key={index} className="border border-neutral-600 bg-neutral-800 text-gray-300 text-xs">
                                       {req}
                                     </Badge>
                                   ))}
                                 </div>
                               </div>
 
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div className="text-sm text-gray-400">
                                   <span className="font-medium text-white">{shoot.address}</span>
                                 </div>
-                                <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleApplyClick(shoot)} disabled={hasApplied(shoot.id)}>
+                                <Button className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto" onClick={() => handleApplyClick(shoot)} disabled={hasApplied(shoot.id)}>
                                   {hasApplied(shoot.id) ? "Applied" : "Capture Event"}
                                 </Button>
                               </div>

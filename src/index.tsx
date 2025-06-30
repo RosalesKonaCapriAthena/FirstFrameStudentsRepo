@@ -30,7 +30,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               <ForOrganizers />
             </ProtectedRoute>
           } />
-          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/gallery" element={<Portfolio />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={
             <ProtectedRoute>

@@ -195,7 +195,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
   }
 
   return (
-    <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24 w-full max-w-xs sm:max-w-none mx-auto">
+    <Card className="bg-neutral-800 border-neutral-700 h-fit sticky top-24 w-full">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <MapPin className="w-5 h-5 text-orange-500" />
@@ -208,7 +208,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-neutral-700 rounded-lg h-64 sm:h-96 overflow-hidden w-full max-w-xs sm:max-w-full mx-auto">
+        <div className="bg-neutral-700 rounded-lg h-64 sm:h-80 lg:h-96 overflow-hidden w-full">
           <MapContainer
             center={mapCenter}
             zoom={mapZoom}
@@ -232,8 +232,8 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
                     }}
                   >
                     <Popup>
-                      <div className="p-2 min-w-[180px] sm:min-w-[220px]">
-                        <h3 className="font-bold text-gray-900 mb-1 text-lg">{opportunity.title}</h3>
+                      <div className="p-2 min-w-[200px] sm:min-w-[250px]">
+                        <h3 className="font-bold text-gray-900 mb-1 text-sm sm:text-lg">{opportunity.title}</h3>
                         <div className="flex items-center gap-2 mb-1">
                           {opportunity.organizer?.full_name && (
                             <span className="text-xs text-gray-600 flex items-center gap-1">
@@ -244,7 +244,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
                             </span>
                           )}
                         </div>
-                        <div className="space-y-1 text-sm text-gray-600 mb-2">
+                        <div className="space-y-1 text-xs sm:text-sm text-gray-600 mb-2">
                           <div className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {opportunity.location}
@@ -258,7 +258,7 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
                             {opportunity.time}
                           </div>
                         </div>
-                        <Badge className={`mt-2 ${
+                        <Badge className={`mt-2 text-xs ${
                           opportunity.difficulty === 'beginner' ? 'bg-green-500/20 text-green-600' :
                           opportunity.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-600' :
                           'bg-red-500/20 text-red-600'
@@ -282,15 +282,15 @@ export const OpportunityMap: React.FC<OpportunityMapProps> = ({
           </MapContainer>
         </div>
         <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             <span>Beginner</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <span>Intermediate</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <span>Advanced</span>
           </div>

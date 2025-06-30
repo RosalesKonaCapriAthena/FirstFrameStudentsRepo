@@ -11,6 +11,7 @@ First Frame is a platform that connects student photographers with event organiz
 - **User Profiles**: Complete profile system with customizable information and profile pictures
 - **Search & Filtering**: Advanced search and filtering for opportunities and photographers
 - **Authentication**: Secure user authentication with Clerk
+- **Portfolio Gallery**: Share and showcase sports photography work
 
 ## Getting started
 
@@ -32,6 +33,25 @@ npm run dev
 
 After a few seconds, your project should be accessible at the address
 [http://localhost:5173/](http://localhost:5173/)
+
+## Database Setup
+
+To enable all features, you'll need to set up your Supabase database:
+
+1. **Run the main database migration**:
+   - Go to the SQL Editor in your Supabase dashboard
+   - Run the contents of `database_migration.sql`
+
+2. **Set up profile pictures** (included in main migration):
+   - Create a storage bucket named `avatars` in your Supabase dashboard
+   - Set it to public
+   - The migration script includes policies for secure file uploads
+
+3. **Set up portfolio functionality**:
+   - Run the contents of `database_migration_portfolio.sql`
+   - Create a storage bucket named `gallery` in your Supabase dashboard
+   - Set it to public
+   - This enables the portfolio gallery feature
 
 ## Profile Picture Setup
 

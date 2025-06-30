@@ -31,7 +31,7 @@ export const NavigationSection = (): JSX.Element => {
     { label: "Home", path: "/" },
     { label: "For Students", path: "/students" },
     { label: "For Organizers", path: "/organizers" },
-    { label: "Gallery", path: "/portfolio" },
+    { label: "Gallery", path: "/gallery" },
     { label: "About", path: "/about" },
     { label: "Contact", path: "/contact" },
   ];

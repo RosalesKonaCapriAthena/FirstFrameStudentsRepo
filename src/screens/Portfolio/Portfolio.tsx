@@ -5,6 +5,23 @@ import { supabase } from "../../lib/supabase";
 import { useUser } from "../../lib/hooks/useUser";
 import { useAuth } from "@clerk/clerk-react";
 
+// Type for gallery images from the existing table
+type GalleryImage = {
+  id: string;
+  image_url: string;
+  title: string;
+  photographer: string;
+  profile_pic: string | null;
+  user_id: string | null;
+  created_at?: string;
+  user?: {
+    id: string;
+    full_name: string;
+    badges: string[] | null;
+    profile_picture_url: string | null;
+  } | null;
+};
+
 // Sample images with photographer profile pictures
 const allGalleryImages = [
   {
@@ -181,8 +198,8 @@ const allGalleryImages = [
 export const Portfolio = (): JSX.Element => {
   const { user } = useUser();
   const { getToken } = useAuth();
-  const [galleryImages, setGalleryImages] = useState<any[]>([]);
-  const [lightbox, setLightbox] = useState<{ open: boolean; image: any } | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [lightbox, setLightbox] = useState<{ open: boolean; image: GalleryImage } | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -190,23 +207,33 @@ export const Portfolio = (): JSX.Element => {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [fetching, setFetching] = useState(false);
   const [uploadForm, setUploadForm] = useState({ title: "", file: null as File | null });
+  const [deletingImage, setDeletingImage] = useState<string | null>(null);
 
   // Fetch images from Supabase
-  const fetchImages = async (append = false) => {
-    setFetching(true);
-    const token = await getToken();
-    if (token) await supabase.auth.setSession({ access_token: token, refresh_token: '' });
-    let { data, error } = await supabase
-      .from("gallery_images")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(24)
-      .maybeSingle();
-    setFetching(false);
-    if (error) return;
-    if (append) setGalleryImages((prev) => [...prev, ...(data ? (Array.isArray(data) ? data : [data]) : [])]);
-    else setGalleryImages(data ? (Array.isArray(data) ? data : [data]) : []);
-    if (!data || (Array.isArray(data) ? data.length : 0) < 24) setHasMore(false);
+  const fetchImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select(`
+          *,
+          user:users!gallery_images_user_id_fkey(
+            id,
+            full_name,
+            badges,
+            profile_picture_url
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching images:', error);
+        return;
+      }
+
+      setGalleryImages(data || []);
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    }
   };
 
   useEffect(() => {
@@ -219,7 +246,7 @@ export const Portfolio = (): JSX.Element => {
     if (!hasMore || fetching) return;
     const observer = new window.IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        fetchImages(true);
+        fetchImages();
       }
     }, { threshold: 1 });
     if (loaderRef.current) observer.observe(loaderRef.current);
@@ -244,37 +271,98 @@ export const Portfolio = (): JSX.Element => {
       return;
     }
     try {
-      const token = await getToken();
-      if (token) await supabase.auth.setSession({ access_token: token, refresh_token: '' });
-      // 1. Upload to Supabase Storage
+      console.log('Starting upload process...');
+      
+      // 1. Upload to Supabase Storage (using anon key, no auth needed)
+      console.log('Uploading to storage...');
       const fileExt = uploadForm.file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
       const { data: storageData, error: storageError } = await supabase.storage
         .from('gallery')
         .upload(fileName, uploadForm.file, { upsert: false });
-      if (storageError) throw storageError;
+      
+      if (storageError) {
+        console.error('Storage error details:', {
+          message: storageError.message,
+          name: storageError.name,
+          statusCode: (storageError as any).statusCode
+        });
+        throw storageError;
+      }
+      console.log('Storage upload successful:', storageData);
+      
       // 2. Get public URL
       const { data: publicUrlData } = supabase.storage.from('gallery').getPublicUrl(fileName);
       const imageUrl = publicUrlData.publicUrl;
-      // 3. Insert into gallery_images
-      const { error: insertError } = await supabase.from('gallery_images').insert([
-        {
-          image_url: imageUrl,
-          title: uploadForm.title,
-          photographer: user?.full_name || user?.email || "Anonymous",
-          profile_pic: user?.profile_picture_url || null,
-          user_id: user?.id || null,
-        },
-      ]);
-      if (insertError) throw insertError;
+      console.log('Image URL:', imageUrl);
+      
+      // 3. Insert into gallery_images with correct field mapping
+      console.log('Inserting into gallery_images...');
+      console.log('User data:', { id: user?.id, full_name: user?.full_name, email: user?.email });
+      
+      const insertData = {
+        image_url: imageUrl,
+        title: uploadForm.title,
+        photographer: user?.full_name || user?.email || "Anonymous",
+        profile_pic: user?.profile_picture_url || null,
+        user_id: user?.id || null,
+      };
+      console.log('Insert data:', insertData);
+      
+      const { data: insertResult, error: insertError } = await supabase.from('gallery_images').insert([insertData]);
+      
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw insertError;
+      }
+      console.log('Insert successful:', insertResult);
+      
       setShowUpload(false);
       setUploadForm({ title: "", file: null });
       fetchImages();
     } catch (err: any) {
+      console.error('Upload error:', err);
       setUploadError(err.message || "Upload failed");
     } finally {
       setUploading(false);
     }
+  };
+
+  // Handle image deletion
+  const handleDeleteImage = async (imageId: string, fileName: string) => {
+    try {
+      // 1. Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('gallery')
+        .remove([fileName]);
+
+      if (storageError) {
+        console.error('Storage delete error:', storageError);
+        throw storageError;
+      }
+
+      // 2. Delete from database
+      const { data: deleteData, error: deleteError } = await supabase
+        .from('gallery_images')
+        .delete()
+        .eq('id', imageId)
+        .select();
+      
+      if (deleteError) {
+        console.error('Database delete error:', deleteError);
+        throw deleteError;
+      }
+      
+      // 3. Refresh the gallery
+      fetchImages();
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
+  };
+
+  // Check if user owns the image
+  const isOwner = (image: GalleryImage) => {
+    return user?.id && image.user_id === user.id;
   };
 
   return (
@@ -284,7 +372,7 @@ export const Portfolio = (): JSX.Element => {
       <section className="relative w-full py-20 px-10 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900">
         <div className="max-w-6xl mx-auto text-center">
           <Badge className="mb-6 bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20">
-            Portfolio
+            Gallery
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 font-['Merriweather',serif] tracking-tight">
             Sports Photography
@@ -300,14 +388,40 @@ export const Portfolio = (): JSX.Element => {
         <div className="w-full mx-auto px-2 sm:px-4 md:px-8">
           <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2 [column-gap:1rem]">
             {galleryImages.map((image) => (
-              <div key={image.id} className="mb-4 break-inside-avoid cursor-pointer" onClick={() => setLightbox({ open: true, image })}>
-                <img
-                  src={image.image_url}
-                  alt={image.title}
-                  className="w-full h-auto rounded-lg shadow-sm"
-                  loading="lazy"
-                  draggable={false}
-                />
+              <div key={image.id} className="mb-4 break-inside-avoid relative group">
+                <div className="relative">
+                  <img
+                    src={image.image_url}
+                    alt={image.title}
+                    className="w-full h-auto rounded-lg shadow-sm cursor-pointer"
+                    loading="lazy"
+                    draggable={false}
+                    onClick={() => setLightbox({ open: true, image })}
+                  />
+                  
+                  {/* Delete button - only show for owner */}
+                  {isOwner(image) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this image?')) {
+                          handleDeleteImage(image.id, image.image_url.split('/').pop() || "");
+                        }
+                      }}
+                      disabled={deletingImage === image.id}
+                      className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                      title="Delete image"
+                    >
+                      {deletingImage === image.id ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
             {hasMore && <div ref={loaderRef} className="h-8"></div>}
@@ -332,15 +446,34 @@ export const Portfolio = (): JSX.Element => {
               draggable={false}
             />
             <div className="flex items-center gap-3 mt-6">
-              {lightbox.image.profile_pic && (
+              {(lightbox.image.user?.profile_picture_url || lightbox.image.profile_pic) && (
                 <img
-                  src={lightbox.image.profile_pic}
+                  src={lightbox.image.user?.profile_picture_url || lightbox.image.profile_pic || ''}
                   alt={lightbox.image.photographer}
                   className="w-10 h-10 rounded-full object-cover border-2 border-orange-400"
                 />
               )}
-              <div>
-                <div className="text-white font-semibold text-lg">{lightbox.image.photographer}</div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="text-white font-semibold text-lg">{lightbox.image.photographer}</div>
+                  {/* Display badges */}
+                  {lightbox.image.user?.badges?.includes('verified') && (
+                    <Badge className="bg-blue-500/20 text-blue-500 border-blue-500 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Verified
+                    </Badge>
+                  )}
+                  {lightbox.image.user?.badges?.includes('founder') && (
+                    <Badge className="bg-yellow-400/20 text-yellow-500 border-yellow-400 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" />
+                      </svg>
+                      Founder
+                    </Badge>
+                  )}
+                </div>
                 <div className="text-gray-400 text-sm">{lightbox.image.title}</div>
               </div>
             </div>
