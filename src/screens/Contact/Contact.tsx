@@ -24,7 +24,7 @@ export const Contact = () => {
     try {
       // Replace these with your actual EmailJS values
       const SERVICE_ID = 'service_ghndhun';
-      const TEMPLATE_ID = 'template_51lf1nk';
+      const TEMPLATE_ID = 'ytemplate_51lf1nk';
       const PUBLIC_KEY = '0wMfSsa4TgwxSoztk';
       
       // Create a more detailed message that includes sender info

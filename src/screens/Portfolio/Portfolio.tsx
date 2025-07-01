@@ -4,9 +4,10 @@ import { Badge } from "../../components/ui/badge";
 import { supabase } from "../../lib/supabase";
 import { useUser } from "../../lib/hooks/useUser";
 import { useAuth } from "@clerk/clerk-react";
+import Masonry from "react-masonry-css";
 
 // Type for gallery images from the existing table
-type GalleryImage = {
+export type GalleryImage = {
   id: string;
   image_url: string;
   title: string;
@@ -365,6 +366,15 @@ export const Portfolio = (): JSX.Element => {
     return user?.id && image.user_id === user.id;
   };
 
+  // Masonry breakpoints
+  const breakpointColumnsObj = {
+    default: 5,
+    1200: 4,
+    900: 3,
+    600: 2,
+    400: 1
+  };
+
   return (
     <div className="flex flex-col w-full items-start relative bg-neutral-900 min-h-screen">
       <NavigationSection />
@@ -383,22 +393,26 @@ export const Portfolio = (): JSX.Element => {
           </p>
         </div>
       </section>
-      {/* Masonry Gallery */}
+      {/* Masonry Gallery using react-masonry-css */}
       <section className="w-full bg-neutral-900">
         <div className="w-full mx-auto px-2 sm:px-4 md:px-8">
-          <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2 [column-gap:1rem]">
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="gallery-masonry"
+            columnClassName="gallery-masonry-column"
+          >
             {galleryImages.map((image) => (
               <div key={image.id} className="mb-4 break-inside-avoid relative group">
                 <div className="relative">
                   <img
                     src={image.image_url}
                     alt={image.title}
-                    className="w-full h-auto rounded-lg shadow-sm cursor-pointer"
+                    className="w-full max-w-full rounded-lg shadow-sm cursor-pointer"
+                    style={{ display: 'block', width: '100%', borderRadius: '0.5rem' }}
                     loading="lazy"
                     draggable={false}
                     onClick={() => setLightbox({ open: true, image })}
                   />
-                  
                   {/* Delete button - only show for owner */}
                   {isOwner(image) && (
                     <button
@@ -425,7 +439,7 @@ export const Portfolio = (): JSX.Element => {
               </div>
             ))}
             {hasMore && <div ref={loaderRef} className="h-8"></div>}
-          </div>
+          </Masonry>
         </div>
       </section>
       {/* Lightbox Modal */}

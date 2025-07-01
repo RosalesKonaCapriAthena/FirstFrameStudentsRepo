@@ -89,3 +89,38 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Make landscape images span two columns in the gallery grid */
+.gallery-grid .landscape-span {
+  grid-column: span 2;
+}
+
+@media (max-width: 1023px) {
+  .gallery-grid .landscape-span {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 767px) {
+  .gallery-grid .landscape-span {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 639px) {
+  .gallery-grid .landscape-span {
+    grid-column: span 2;
+  }
+}
+
+/* react-masonry-css column fix */
+.gallery-masonry {
+  display: flex;
+  margin-left: -1rem; /* gutter size offset */
+  width: auto;
+}
+.gallery-masonry-column {
+  padding-left: 1rem; /* gutter size */
+  background-clip: padding-box;
+}
+.gallery-masonry-column > div {
+  margin-bottom: 1rem;
+}

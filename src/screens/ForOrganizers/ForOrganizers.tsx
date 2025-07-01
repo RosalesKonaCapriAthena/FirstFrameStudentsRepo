@@ -262,7 +262,7 @@ export const ForOrganizers = (): JSX.Element => {
             <span className="block text-orange-500">Photographers</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-['Figtree',sans-serif]">
-            Post photography opportunities for your sports events and connect with talented student photographers. Get professional-quality photos while supporting emerging talent.
+            Easily post photography opportunities for your sporting events and connect with talented and upcoming photographers. Get free promotional materials while supporting emerging talent.
           </p>
         </div>
       </section>

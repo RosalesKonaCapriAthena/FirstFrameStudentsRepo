@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { useUser } from "../../lib/hooks/useUser";
 import { useApplications } from "../../lib/hooks/useApplications";
 import { useOpportunities } from "../../lib/hooks/useOpportunities";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { uploadProfilePicture, getInitials, formatFileSize } from "../../lib/utils";
 import { 
   User, 
@@ -42,6 +42,7 @@ export const Profile = (): JSX.Element => {
   const [toastMessage, setToastMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const [editForm, setEditForm] = useState({
     full_name: user?.full_name || "",
     email: user?.email || "",
@@ -50,6 +51,8 @@ export const Profile = (): JSX.Element => {
     experience_level: user?.experience_level || "beginner",
     portfolio_url: user?.portfolio_url || "",
     instagram_handle: user?.instagram_handle || "",
+    promo_blurb: user?.promo_blurb || "",
+    website_url: user?.website_url || "",
   });
 
   // Handle URL parameters for tab selection
@@ -102,6 +105,8 @@ export const Profile = (): JSX.Element => {
       experience_level: user?.experience_level || "beginner",
       portfolio_url: user?.portfolio_url || "",
       instagram_handle: user?.instagram_handle || "",
+      promo_blurb: user?.promo_blurb || "",
+      website_url: user?.website_url || "",
     });
     setIsEditing(false);
   };
@@ -467,6 +472,80 @@ export const Profile = (): JSX.Element => {
                           </div>
                         </>
                       )}
+                      {/* Organizer Promo & Socials Section */}
+                      {user.user_type === 'organizer' && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Promo Blurb</label>
+                            {isEditing ? (
+                              <textarea
+                                value={editForm.promo_blurb}
+                                onChange={(e) => handleInputChange('promo_blurb', e.target.value)}
+                                className="w-full h-20 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white resize-none"
+                                placeholder="Write a short promo about your organization or events..."
+                              />
+                            ) : (
+                              <p className="text-white">{user.promo_blurb || "No promo blurb provided."}</p>
+                            )}
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-2">Instagram Handle</label>
+                              {isEditing ? (
+                                <Input
+                                  value={editForm.instagram_handle}
+                                  onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
+                                  className="bg-neutral-700 border-neutral-600 text-white"
+                                  placeholder="@username"
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  {user.instagram_handle ? (
+                                    <a 
+                                      href={`https://instagram.com/${user.instagram_handle}`} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-orange-500 hover:text-orange-400 flex items-center gap-1"
+                                    >
+                                      <ExternalLink className="w-4 h-4" />
+                                      @{user.instagram_handle}
+                                    </a>
+                                  ) : (
+                                    <p className="text-gray-400">No Instagram handle</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-2">Website</label>
+                              {isEditing ? (
+                                <Input
+                                  value={editForm.website_url}
+                                  onChange={(e) => handleInputChange('website_url', e.target.value)}
+                                  className="bg-neutral-700 border-neutral-600 text-white"
+                                  placeholder="https://your-website.com"
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  {user.website_url ? (
+                                    <a 
+                                      href={user.website_url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-orange-500 hover:text-orange-400 flex items-center gap-1"
+                                    >
+                                      <ExternalLink className="w-4 h-4" />
+                                      Website
+                                    </a>
+                                  ) : (
+                                    <p className="text-gray-400">No website link</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
@@ -542,11 +621,17 @@ export const Profile = (): JSX.Element => {
                         </>
                       ) : (
                         <>
-                          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                          <Button
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                            onClick={() => navigate('/organizers?tab=post-opportunity')}
+                          >
                             <Plus className="w-4 h-4 mr-2" />
                             Post Opportunity
                           </Button>
-                          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                          <Button
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                            onClick={() => navigate('/organizers?tab=find-photographers')}
+                          >
                             <Camera className="w-4 h-4 mr-2" />
                             Find Photographers
                           </Button>
