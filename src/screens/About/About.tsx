@@ -50,7 +50,7 @@ export const About = (): JSX.Element => {
 
   const teamMembers = [
     {
-      name: "Taylor Schedmana",
+      name: "Taylor Schmedeman",
       role: "Founder",
       image: "https://res.cloudinary.com/djwnjp7er/image/upload/v1751189025/IMG_0107_rp78av.jpg",
       bio: "Senior at Hamilton High School passionate about photography and dedicated to making creative opportunities more accessible for student photographers.",

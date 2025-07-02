@@ -30,6 +30,7 @@ import {
   Plus,
   Eye
 } from "lucide-react";
+import { ProfilePortfolioTab } from "./ProfilePortfolioTab";
 
 export const Profile = (): JSX.Element => {
   const { user, updateUser, updateProfilePicture, loading } = useUser();
@@ -45,14 +46,11 @@ export const Profile = (): JSX.Element => {
   const navigate = useNavigate();
   const [editForm, setEditForm] = useState({
     full_name: user?.full_name || "",
-    email: user?.email || "",
     location: user?.location || "",
     bio: user?.bio || "",
     experience_level: user?.experience_level || "beginner",
     portfolio_url: user?.portfolio_url || "",
     instagram_handle: user?.instagram_handle || "",
-    promo_blurb: user?.promo_blurb || "",
-    website_url: user?.website_url || "",
   });
 
   // Handle URL parameters for tab selection
@@ -84,9 +82,37 @@ export const Profile = (): JSX.Element => {
 
   const handleSaveProfile = async () => {
     try {
-      await updateUser(editForm);
+      // Only include fields that have actually changed
+      const updates: Partial<typeof editForm> = {};
+      
+      if (editForm.full_name !== user?.full_name) {
+        updates.full_name = editForm.full_name;
+      }
+      if (editForm.location !== user?.location) {
+        updates.location = editForm.location;
+      }
+      if (editForm.bio !== user?.bio) {
+        updates.bio = editForm.bio;
+      }
+      if (editForm.experience_level !== user?.experience_level) {
+        updates.experience_level = editForm.experience_level;
+      }
+      if (editForm.portfolio_url !== user?.portfolio_url) {
+        updates.portfolio_url = editForm.portfolio_url;
+      }
+      if (editForm.instagram_handle !== user?.instagram_handle) {
+        updates.instagram_handle = editForm.instagram_handle;
+      }
+
+      // Only update if there are actual changes
+      if (Object.keys(updates).length > 0) {
+        await updateUser(updates);
+        setToastMessage("Profile updated successfully!");
+      } else {
+        setToastMessage("No changes to save");
+      }
+      
       setIsEditing(false);
-      setToastMessage("Profile updated successfully!");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     } catch (error) {
@@ -99,14 +125,11 @@ export const Profile = (): JSX.Element => {
   const handleCancelEdit = () => {
     setEditForm({
       full_name: user?.full_name || "",
-      email: user?.email || "",
       location: user?.location || "",
       bio: user?.bio || "",
       experience_level: user?.experience_level || "beginner",
       portfolio_url: user?.portfolio_url || "",
       instagram_handle: user?.instagram_handle || "",
-      promo_blurb: user?.promo_blurb || "",
-      website_url: user?.website_url || "",
     });
     setIsEditing(false);
   };
@@ -276,13 +299,20 @@ export const Profile = (): JSX.Element => {
       <section className="w-full py-16 px-10 bg-neutral-900">
         <div className="max-w-6xl mx-auto">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 bg-neutral-800 border border-neutral-700">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 bg-neutral-800 border border-neutral-700">
               <TabsTrigger 
                 value="overview" 
                 className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
               >
                 <User className="w-4 h-4 mr-2" />
                 Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="portfolio" 
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Portfolio
               </TabsTrigger>
               <TabsTrigger 
                 value="activity" 
@@ -476,73 +506,31 @@ export const Profile = (): JSX.Element => {
                       {user.user_type === 'organizer' && (
                         <>
                           <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Promo Blurb</label>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Instagram Handle</label>
                             {isEditing ? (
-                              <textarea
-                                value={editForm.promo_blurb}
-                                onChange={(e) => handleInputChange('promo_blurb', e.target.value)}
-                                className="w-full h-20 bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white resize-none"
-                                placeholder="Write a short promo about your organization or events..."
+                              <Input
+                                value={editForm.instagram_handle}
+                                onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
+                                className="bg-neutral-700 border-neutral-600 text-white"
+                                placeholder="@username"
                               />
                             ) : (
-                              <p className="text-white">{user.promo_blurb || "No promo blurb provided."}</p>
+                              <div className="flex items-center gap-2">
+                                {user.instagram_handle ? (
+                                  <a 
+                                    href={`https://instagram.com/${user.instagram_handle}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-orange-500 hover:text-orange-400 flex items-center gap-1"
+                                  >
+                                    <ExternalLink className="w-4 h-4" />
+                                    @{user.instagram_handle}
+                                  </a>
+                                ) : (
+                                  <p className="text-gray-400">No Instagram handle</p>
+                                )}
+                              </div>
                             )}
-                          </div>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-300 mb-2">Instagram Handle</label>
-                              {isEditing ? (
-                                <Input
-                                  value={editForm.instagram_handle}
-                                  onChange={(e) => handleInputChange('instagram_handle', e.target.value)}
-                                  className="bg-neutral-700 border-neutral-600 text-white"
-                                  placeholder="@username"
-                                />
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  {user.instagram_handle ? (
-                                    <a 
-                                      href={`https://instagram.com/${user.instagram_handle}`} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="text-orange-500 hover:text-orange-400 flex items-center gap-1"
-                                    >
-                                      <ExternalLink className="w-4 h-4" />
-                                      @{user.instagram_handle}
-                                    </a>
-                                  ) : (
-                                    <p className="text-gray-400">No Instagram handle</p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-300 mb-2">Website</label>
-                              {isEditing ? (
-                                <Input
-                                  value={editForm.website_url}
-                                  onChange={(e) => handleInputChange('website_url', e.target.value)}
-                                  className="bg-neutral-700 border-neutral-600 text-white"
-                                  placeholder="https://your-website.com"
-                                />
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  {user.website_url ? (
-                                    <a 
-                                      href={user.website_url} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="text-orange-500 hover:text-orange-400 flex items-center gap-1"
-                                    >
-                                      <ExternalLink className="w-4 h-4" />
-                                      Website
-                                    </a>
-                                  ) : (
-                                    <p className="text-gray-400">No website link</p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
                           </div>
                         </>
                       )}
@@ -641,6 +629,17 @@ export const Profile = (): JSX.Element => {
                   </Card>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Portfolio Tab */}
+            <TabsContent value="portfolio" className="mt-8">
+              {user.user_type === 'student' ? <ProfilePortfolioTab userId={user.id} /> : (
+                <div className="text-center text-gray-400 py-20">
+                  <Camera className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+                  <h2 className="text-2xl font-bold text-white mb-2">Portfolio Only Available for Students</h2>
+                  <p>Only student photographers can upload and manage a portfolio.</p>
+                </div>
+              )}
             </TabsContent>
 
             {/* Activity Tab */}
